@@ -1,29 +1,63 @@
 import React from "react";
+// ✅ Only importing the video you have
+import heroVideo from "../assets/hero-video.mp4";
 
 const Hero = () => {
   return (
-    <section className="relative h-[85vh] flex items-center bg-[#2D4F1E] overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-[#2D4F1E] via-transparent to-transparent z-10" />
-      <div className="absolute inset-0">
-        <img 
-          src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=2000" 
-          className="w-full h-full object-cover" 
-          alt="Coffee Roastery"
-        />
+    <section className="relative h-[100vh] w-full overflow-hidden bg-[#1a1a1a]">
+
+      {/* ===== Background Video ===== */}
+      <div className="absolute inset-0 z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="w-full h-full object-cover opacity-90"
+        >
+          <source src={heroVideo} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        {/* Gradient Overlay: Deep Green for text readability */}
+        {/* <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-[#2D4F1E]/50 to-black/40" /> */}
       </div>
 
-      <div className="relative z-20 max-w-7xl mx-auto px-6 w-full">
-        <div className="max-w-2xl">
-          <span className="text-[#A3B899] uppercase tracking-[0.5em] text-[10px] font-bold mb-6 block">
-            Est. 2024 — Artisan Roastery
-          </span>
-          <h1 className="text-6xl md:text-8xl font-serif text-white leading-[0.9] mb-8">
-            The Art of <br /> 
-            <span className="italic font-light text-[#A3B899] ml-12 md:ml-24">Slow Brewing.</span>
+      {/* ===== Content ===== */}
+      {/* 'pt-32' prevents navbar overlap */}
+      <div className="relative z-20 max-w-[1400px] mx-auto px-6 w-full h-full flex flex-col justify-center pt-32">
+        <div className="max-w-4xl">
+
+          {/* Badge: Simplified to just the year and origin */}
+          <div className="inline-block mb-8 px-4 py-2 bg-[#2D4F1E]/30 backdrop-blur-md border border-[#A3B899]/30 rounded-full shadow-lg">
+            <span className="text-[#E8DCC4] uppercase tracking-[0.4em] text-xs md:text-sm font-bold">
+              Est. 2024
+            </span>
+          </div>
+
+          {/* Heading: Classic, minimal, high-impact */}
+          <h1 className="text-7xl md:text-9xl font-serif text-[#FAF9F6] leading-[0.85] mb-10 drop-shadow-2xl">
+            Pure <br />
+            <span className="italic font-light text-[#A3B899] ml-16 md:ml-32 block">
+              Origins.
+            </span>
           </h1>
-          <button className="bg-white text-[#4B3621] px-12 py-5 rounded-full font-bold uppercase text-[11px] tracking-[0.2em] hover:bg-[#A3B899] hover:text-[#2D4F1E] transition-all shadow-2xl">
-            Explore Collection
-          </button>
+
+          {/* CTA: Shortened for elegance */}
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-8 pl-2">
+            <p className="hidden md:block text-stone-300 max-w-sm text-sm leading-relaxed border-l-2 border-[#A3B899] pl-6 tracking-wide">
+              Small batch roasts. Sustainably sourced. Simply exceptional.
+            </p>
+
+            <button className="group bg-[#FAF9F6] text-[#2D4F1E] px-14 py-6 rounded-br-3xl font-black uppercase text-xs tracking-[0.25em] hover:bg-[#2D4F1E] hover:text-white transition-all duration-500 shadow-2xl border border-transparent hover:border-[#A3B899]">
+              Shop Now
+              <span className="inline-block ml-2 group-hover:translate-x-1 transition-transform">
+                →
+              </span>
+            </button>
+          </div>
+
         </div>
       </div>
     </section>

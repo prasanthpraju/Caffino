@@ -1,34 +1,58 @@
- import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { PlusIcon, ArchiveBoxIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
 
 const AdminDashboard = () => {
+  const adminActions = [
+    {
+      title: "Add New Roast",
+      desc: "List a new coffee blend or accessory to the storefront.",
+      path: "/admin/add-product",
+      icon: <PlusIcon className="h-6 w-6" />,
+    },
+    {
+      title: "Manage Inventory",
+      desc: "Update prices, check stock levels, or remove products.",
+      path: "/admin/products",
+      icon: <ArchiveBoxIcon className="h-6 w-6" />,
+    },
+    {
+      title: "View Orders",
+      desc: "Track customer purchases and fulfillment status.",
+      path: "/admin/orders",
+      icon: <ShoppingBagIcon className="h-6 w-6" />,
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#FDFCFB] p-8">
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-10">
-          <h2 className="text-3xl font-serif font-bold text-[#4B3621]">Admin Command Center</h2>
-          <p className="text-[#A3B899] text-sm uppercase tracking-widest mt-1">Inventory & Shop Management</p>
+    <div className="min-h-screen bg-[#FDFCFB] p-6 md:p-12">
+      <div className="max-w-5xl mx-auto">
+        <header className="mb-12 border-b border-[#E8DCC4] pb-8">
+          <h2 className="text-4xl font-serif font-bold text-[#4B3621]">Admin Command Center</h2>
+          <p className="text-[#A3B899] text-xs uppercase tracking-[0.2em] font-semibold mt-2">
+            Inventory & Shop Management
+          </p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Link to="/admin/add-product" className="group p-8 bg-white border border-[#E8DCC4] rounded-3xl hover:border-[#2D4F1E] transition-all hover:shadow-xl hover:bg-[#FDFCFB]">
-            <div className="w-12 h-12 bg-[#F5F2EF] rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#2D4F1E] group-hover:text-white transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-[#4B3621]">Add New Roast</h3>
-            <p className="text-stone-500 text-sm mt-2 leading-relaxed">List a new coffee blend or accessory to the storefront.</p>
-          </Link>
-
-          <Link to="/admin/products" className="group p-8 bg-white border border-[#E8DCC4] rounded-3xl hover:border-[#2D4F1E] transition-all hover:shadow-xl hover:bg-[#FDFCFB]">
-            <div className="w-12 h-12 bg-[#F5F2EF] rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#2D4F1E] group-hover:text-white transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-[#4B3621]">Manage Inventory</h3>
-            <p className="text-stone-500 text-sm mt-2 leading-relaxed">Update prices, check stock levels, or remove products.</p>
-          </Link>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {adminActions.map((action) => (
+            <Link
+              key={action.path}
+              to={action.path}
+              className="group relative p-8 bg-white border border-[#E8DCC4] rounded-3xl transition-all duration-300 hover:border-[#2D4F1E] hover:shadow-2xl hover:-translate-y-1"
+            >
+              <div className="w-14 h-14 bg-[#F5F2EF] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#2D4F1E] group-hover:text-white transition-colors duration-300">
+                {action.icon}
+              </div>
+              <h3 className="text-xl font-bold text-[#4B3621] mb-2">{action.title}</h3>
+              <p className="text-stone-500 text-sm leading-relaxed">
+                {action.desc}
+              </p>
+              <div className="mt-6 flex items-center text-[#2D4F1E] text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                Manage Section 
+                <span className="ml-2">→</span>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </div>

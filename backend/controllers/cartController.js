@@ -1,74 +1,49 @@
 const Cart = require("../models/Cart");
 
-// ADD TO CART
-exports.addToCart = async (req, res) => {
-  try {
-    const { productId } = req.body;
-    const userId = req.user._id;
-
-    let cart = await Cart.findOne({ user: userId });
-
-    if (!cart) {
-      cart = await Cart.create({
-        user: userId,
-        items: [{ product: productId, qty: 1 }],
-      });
-    } else {
-      const index = cart.items.findIndex(
-        (i) => i.product.toString() === productId
-      );
-
-      if (index > -1) {
-        cart.items[index].qty += 1;
-      } else {
-        cart.items.push({ product: productId, qty: 1 });
-      }
-      await cart.save();
-    }
-
-    res.json(cart);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// GET CART
 exports.getCart = async (req, res) => {
-  try {
-    const cart = await Cart.findOne({ user: req.user._id }).populate(
-      "items.product"
-    );
-
-    res.json(cart || { items: [] });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+  const cart = await Cart.findOne({ user: req.user.id }).populate(
+    "items.product"
+  );
+  res.json(cart || { items: [] });
 };
 
-// UPDATE QTY
-exports.updateQty = async (req, res) => {
+exports.addToCart = async (req, res) => {
   const { productId, qty } = req.body;
+  let cart = await Cart.findOne({ user: req.user.id });
 
-  const cart = await Cart.findOne({ user: req.user._id });
-  const item = cart.items.find(
-    (i) => i.product.toString() === productId
-  );
-
-  if (item) item.qty = qty;
-  await cart.save();
+  if (!cart) {
+    cart = await Cart.create({
+      user: req.user.id,
+      items: [{ product: productId, qty }],
+    });
+  } else {
+    const item = cart.items.find(
+      (i) => i.product.toString() === productId
+    );
+    if (item) item.qty += qty;
+    else cart.items.push({ product: productId, qty });
+    await cart.save();
+  }
 
   res.json(cart);
 };
 
-// REMOVE ITEM
-exports.removeItem = async (req, res) => {
-  const { productId } = req.params;
+exports.updateCart = async (req, res) => {
+  const { productId, qty } = req.body;
+  const cart = await Cart.findOne({ user: req.user.id });
+  const item = cart.items.find(
+    (i) => i.product.toString() === productId
+  );
+  if (item) item.qty = qty;
+  await cart.save();
+  res.json(cart);
+};
 
-  const cart = await Cart.findOne({ user: req.user._id });
+exports.removeFromCart = async (req, res) => {
+  const cart = await Cart.findOne({ user: req.user.id });
   cart.items = cart.items.filter(
-    (i) => i.product.toString() !== productId
+    (i) => i.product.toString() !== req.params.productId
   );
   await cart.save();
-
   res.json(cart);
 };
