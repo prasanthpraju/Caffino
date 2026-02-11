@@ -1,7 +1,7 @@
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Products from "../components/Products";
-import Footer from "../components/Footer";
+ 
 
 const Home = () => {
   return (
@@ -9,7 +9,7 @@ const Home = () => {
       <Navbar />
       <Hero />
       <Products />
-      <Footer />
+     
     </>
   );
 };

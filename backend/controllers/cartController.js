@@ -7,8 +7,14 @@ exports.getCart = async (req, res) => {
   res.json(cart || { items: [] });
 };
 
-exports.addToCart = async (req, res) => {
-  const { productId, qty } = req.body;
+ exports.addToCart = async (req, res) => {
+  // 🔐 MUST BE FIRST LINE
+  if (!req.user) {
+    return res.status(401).json({ message: "Login required" });
+  }
+
+  const { productId, qty = 1 } = req.body;
+
   let cart = await Cart.findOne({ user: req.user.id });
 
   if (!cart) {
@@ -20,13 +26,16 @@ exports.addToCart = async (req, res) => {
     const item = cart.items.find(
       (i) => i.product.toString() === productId
     );
+
     if (item) item.qty += qty;
     else cart.items.push({ product: productId, qty });
+
     await cart.save();
   }
 
   res.json(cart);
 };
+
 
 exports.updateCart = async (req, res) => {
   const { productId, qty } = req.body;

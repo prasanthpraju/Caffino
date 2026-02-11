@@ -1,4 +1,4 @@
- import { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import API from "../../services/api";
 
 const AddProduct = () => {
@@ -6,8 +6,10 @@ const AddProduct = () => {
     name: "",
     description: "",
     price: "",
-    image: "", // This will now store the uploaded URL/String
+    image: "",
     stock: "",
+    category: "",
+    subCategory: "",
   };
 
   const [form, setForm] = useState(initialFormState);
@@ -27,7 +29,7 @@ const AddProduct = () => {
     if (!file) return;
 
     setIsUploading(true);
-    
+
     // For this example, we use FileReader to create a local preview string
     // In production, you would replace this with a call to Cloudinary/S3
     const reader = new FileReader();
@@ -40,12 +42,20 @@ const AddProduct = () => {
 
   const submitProduct = async (e) => {
     e.preventDefault();
-    if (!form.image) return setFeedback({ type: "error", message: "Please upload an image." });
-    
+    if (!form.image)
+      return setFeedback({ type: "error", message: "Please upload an image." });
+
     setIsSubmitting(true);
     try {
-      await API.post("/products", form);
-      setFeedback({ type: "success", message: "Roast successfully listed! ☕" });
+      await API.post("/products", {
+        ...form,
+        subCategory: form.subCategory.toLowerCase().trim(),
+      });
+
+      setFeedback({
+        type: "success",
+        message: "Roast successfully listed! ☕",
+      });
       setForm(initialFormState);
     } catch (err) {
       setFeedback({ type: "error", message: "Failed to add product." });
@@ -55,105 +65,292 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFCFB] p-4 md:p-8">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-        
-        {/* Form Section */}
-        <div className="bg-white p-6 md:p-10 rounded-[2.5rem] border border-[#E8DCC4] shadow-sm">
-          <header className="mb-8">
-            <h2 className="text-3xl font-serif font-bold text-[#4B3621]">New Collection</h2>
-            <p className="text-[#A3B899] text-xs uppercase tracking-widest mt-1 font-semibold">
+    // FIXED: Added pt-32 to prevent Navbar overlap
+    <div className="min-h-screen bg-[#FDFCFB] pt-32 pb-12 px-4 md:px-8 font-sans antialiased">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+        {/* Form Section - Spans 7 columns on large screens */}
+        <div className="lg:col-span-7 bg-white p-8 md:p-12 rounded-[2rem] border border-[#E8DCC4]/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          <header className="mb-10 border-b border-[#E8DCC4]/30 pb-6">
+            <h2 className="text-4xl font-serif font-black text-[#2D4F1E] tracking-tight">
+              New Collection
+            </h2>
+            <p className="text-[#4B3621]/60 text-xs font-bold uppercase tracking-[0.2em] mt-2">
               Update your artisan inventory
             </p>
           </header>
 
           {feedback.message && (
-            <div className={`mb-6 p-4 rounded-2xl text-sm font-medium ${
-              feedback.type === "success" ? "bg-green-50 text-green-700 border-green-100" : "bg-red-50 text-red-700 border-red-100"
-            } border`}>
+            <div
+              className={`mb-8 p-4 rounded-xl flex items-center gap-3 text-sm font-bold tracking-wide ${
+                feedback.type === "success"
+                  ? "bg-[#2D4F1E]/5 text-[#2D4F1E] border border-[#2D4F1E]/10"
+                  : "bg-red-50 text-[#D9534F] border border-red-100"
+              }`}
+            >
+              <span
+                className={`h-2 w-2 rounded-full ${feedback.type === "success" ? "bg-[#2D4F1E]" : "bg-[#D9534F]"}`}
+              ></span>
               {feedback.message}
             </div>
           )}
 
-          <form onSubmit={submitProduct} className="space-y-5">
-            <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-tighter font-bold text-[#4B3621] ml-1">Product Name</label>
-              <input name="name" placeholder="e.g. Midnight Espresso" className="w-full p-4 rounded-2xl border border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-2 focus:ring-[#2D4F1E] outline-none transition-all" value={form.name} onChange={handleChange} required />
+          <form onSubmit={submitProduct} className="space-y-8">
+            {/* Name Input */}
+            <div className="space-y-2 group">
+              <label className="text-[11px] uppercase tracking-widest font-black text-[#4B3621]/70 group-focus-within:text-[#2D4F1E] transition-colors ml-1">
+                Product Name
+              </label>
+              <input
+                name="name"
+                placeholder="e.g. Midnight Espresso"
+                className="w-full p-4 rounded-xl border-2 border-[#E8DCC4]/40 bg-[#FAF9F6] text-[#4B3621] placeholder:text-[#4B3621]/20 font-serif font-bold text-lg focus:bg-white focus:border-[#2D4F1E] focus:ring-0 outline-none transition-all duration-300"
+                value={form.name}
+                onChange={handleChange}
+                required
+              />
             </div>
 
             {/* Custom Image Uploader UI */}
-            <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-tighter font-bold text-[#4B3621] ml-1">Product Image</label>
-              <div 
+            <div className="space-y-2 group">
+              <label className="text-[11px] uppercase tracking-widest font-black text-[#4B3621]/70 group-focus-within:text-[#2D4F1E] transition-colors ml-1">
+                Product Image
+              </label>
+              <div
                 onClick={() => fileInputRef.current.click()}
-                className="w-full p-8 border-2 border-dashed border-[#E8DCC4] rounded-2xl bg-stone-50/30 flex flex-col items-center justify-center cursor-pointer hover:bg-stone-50 transition-all"
+                className={`group/upload relative w-full h-48 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 overflow-hidden ${
+                  form.image
+                    ? "border-[#2D4F1E]/20 bg-white"
+                    : "border-[#E8DCC4] bg-[#FAF9F6] hover:bg-[#F5F2EF] hover:border-[#2D4F1E]/40"
+                }`}
               >
-                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
-                
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
+
                 {isUploading ? (
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#4B3621]"></div>
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2D4F1E]"></div>
+                    <span className="text-xs font-bold text-[#2D4F1E] animate-pulse">
+                      Processing Bean Data...
+                    </span>
+                  </div>
                 ) : form.image ? (
-                  <div className="text-center">
-                    <p className="text-xs text-green-600 font-bold uppercase tracking-tighter">Image Selected ✓</p>
-                    <p className="text-[10px] text-stone-400">Click to change</p>
+                  <div className="relative w-full h-full group-hover/upload:opacity-90 transition-opacity">
+                    <img
+                      src={form.image}
+                      alt="Upload preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity backdrop-blur-[2px]">
+                      <span className="bg-white/90 text-[#2D4F1E] px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider shadow-lg transform scale-95 group-hover/upload:scale-100 transition-transform">
+                        Change Photo
+                      </span>
+                    </div>
                   </div>
                 ) : (
-                  <div className="text-center">
-                    <svg className="w-6 h-6 text-[#A3B899] mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    <p className="text-xs text-stone-500 font-medium">Upload Bean Photography</p>
+                  <div className="text-center transform group-hover:-translate-y-1 transition-transform duration-300">
+                    <div className="w-12 h-12 rounded-full bg-[#2D4F1E]/5 flex items-center justify-center mx-auto mb-3 group-hover:bg-[#2D4F1E]/10 transition-colors">
+                      <svg
+                        className="w-6 h-6 text-[#2D4F1E]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </div>
+                    <p className="text-sm text-[#4B3621] font-bold">
+                      Click to upload
+                    </p>
+                    <p className="text-[10px] text-[#4B3621]/40 mt-1 font-medium">
+                      SVG, PNG, JPG or WEBP
+                    </p>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-tighter font-bold text-[#4B3621] ml-1">Price (₹)</label>
-                <input name="price" type="number" placeholder="0.00" className="w-full p-4 rounded-2xl border border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-2 focus:ring-[#2D4F1E] outline-none transition-all" value={form.price} onChange={handleChange} required />
+            {/* Price & Stock Grid */}
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2 group">
+                <label className="text-[11px] uppercase tracking-widest font-black text-[#4B3621]/70 group-focus-within:text-[#2D4F1E] transition-colors ml-1">
+                  Price (₹)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4B3621]/40 font-serif font-bold text-lg">
+                    ₹
+                  </span>
+                  <input
+                    name="price"
+                    type="number"
+                    placeholder="0.00"
+                    className="w-full pl-10 p-4 rounded-xl border-2 border-[#E8DCC4]/40 bg-[#FAF9F6] text-[#4B3621] font-bold text-lg focus:bg-white focus:border-[#2D4F1E] focus:ring-0 outline-none transition-all duration-300"
+                    value={form.price}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-tighter font-bold text-[#4B3621] ml-1">Stock Level</label>
-                <input name="stock" type="number" placeholder="Qty" className="w-full p-4 rounded-2xl border border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-2 focus:ring-[#2D4F1E] outline-none transition-all" value={form.stock} onChange={handleChange} required />
+              <div className="space-y-2 group">
+                <label className="text-[11px] uppercase tracking-widest font-black text-[#4B3621]/70 group-focus-within:text-[#2D4F1E] transition-colors ml-1">
+                  Stock Level
+                </label>
+                <input
+                  name="stock"
+                  type="number"
+                  placeholder="Qty"
+                  className="w-full p-4 rounded-xl border-2 border-[#E8DCC4]/40 bg-[#FAF9F6] text-[#4B3621] font-bold text-lg focus:bg-white focus:border-[#2D4F1E] focus:ring-0 outline-none transition-all duration-300"
+                  value={form.stock}
+                  onChange={handleChange}
+                  required
+                />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-tighter font-bold text-[#4B3621] ml-1">Description</label>
-              <textarea name="description" placeholder="Notes on roast, origin, and flavor..." rows="3" className="w-full p-4 rounded-2xl border border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-2 focus:ring-[#2D4F1E] outline-none transition-all resize-none" value={form.description} onChange={handleChange} required />
+            <div>
+              <label>Category</label>
+              <select
+                name="category"
+                value={form.category}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Category</option>
+                <option value="coffee">Coffee</option>
+                <option value="equipment">Equipment</option>
+                <option value="accessories">Accessories</option>
+              </select>
+            </div>
+            <div>
+              <label>Sub Category</label>
+              <input
+                name="subCategory"
+                value={form.subCategory}
+                onChange={handleChange}
+                placeholder="e.g. Espresso, Drip, Grinder"
+                required
+              />
             </div>
 
-            <button 
+            {/* Description */}
+            <div className="space-y-2 group">
+              <label className="text-[11px] uppercase tracking-widest font-black text-[#4B3621]/70 group-focus-within:text-[#2D4F1E] transition-colors ml-1">
+                Flavor Notes
+              </label>
+              <textarea
+                name="description"
+                placeholder="Describe the roast profile, origin, and tasting notes..."
+                rows="4"
+                className="w-full p-4 rounded-xl border-2 border-[#E8DCC4]/40 bg-[#FAF9F6] text-[#4B3621] placeholder:text-[#4B3621]/20 font-medium leading-relaxed focus:bg-white focus:border-[#2D4F1E] focus:ring-0 outline-none transition-all duration-300 resize-none"
+                value={form.description}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <button
               disabled={isSubmitting || isUploading}
-              className="w-full bg-[#4B3621] text-white py-5 rounded-2xl font-bold hover:bg-[#2D4F1E] transition-all shadow-xl active:scale-[0.98] disabled:opacity-50 uppercase tracking-widest text-xs"
+              className="w-full bg-[#2D4F1E] text-[#FAF9F6] py-4 rounded-xl font-black text-[13px] uppercase tracking-[0.2em] hover:bg-[#1a3310] hover:shadow-lg hover:shadow-[#2D4F1E]/20 hover:-translate-y-0.5 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mt-4"
             >
               {isSubmitting ? "Publishing..." : "Add to Menu"}
             </button>
           </form>
         </div>
 
-        {/* Live Preview Section */}
-        <div className="hidden lg:flex flex-col items-center justify-center p-12 border-2 border-dashed border-[#E8DCC4] rounded-[2.5rem] bg-stone-50/30">
-          <p className="text-[#A3B899] text-[10px] uppercase font-bold mb-10 tracking-[0.3em]">Card Preview</p>
-          <div className="w-72 bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-stone-100">
-             <div className="h-72 bg-[#F5F2EF] flex items-center justify-center overflow-hidden">
+        {/* Live Preview Section - Spans 5 columns & Sticky */}
+        <div className="lg:col-span-5 lg:sticky lg:top-36 flex flex-col items-center">
+          <div className="w-full p-8 md:p-12 border-2 border-dashed border-[#E8DCC4] rounded-[2rem] bg-[#FAF9F6]/50 flex flex-col items-center">
+            <p className="text-[#4B3621]/40 text-[10px] uppercase font-black mb-8 tracking-[0.3em] flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#2D4F1E] animate-pulse"></span>
+              Live Preview
+            </p>
+
+            {/* Card Component */}
+            <div className="w-full max-w-[320px] bg-white rounded-3xl shadow-[0_20px_40px_rgb(0,0,0,0.08)] overflow-hidden ring-1 ring-[#E8DCC4]/30 transform transition-all duration-500 hover:scale-[1.02]">
+              <div className="aspect-[4/5] bg-[#F5F2EF] relative overflow-hidden group">
                 {form.image ? (
-                  <img src={form.image} className="w-full h-full object-cover" alt="Preview" />
+                  <img
+                    src={form.image}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    alt="Preview"
+                  />
                 ) : (
-                  <p className="text-stone-300 text-xs italic">Awaiting Image...</p>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-[#4B3621]/20">
+                    <svg
+                      className="w-12 h-12 mb-2 opacity-50"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.5"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span className="text-[10px] uppercase tracking-widest font-bold">
+                      No Image
+                    </span>
+                  </div>
                 )}
-             </div>
-             <div className="p-6">
-                <span className="text-[9px] font-bold text-[#2D4F1E] uppercase tracking-widest">Artisan Roast</span>
-                <h4 className="font-serif text-xl font-bold text-[#4B3621] mt-1 truncate">{form.name || "Unnamed Blend"}</h4>
-                <div className="flex justify-between items-center mt-4">
-                  <p className="text-[#2D4F1E] font-bold">₹{form.price || "0"}</p>
-                  <div className="h-8 w-8 rounded-full bg-[#4B3621] flex items-center justify-center text-white">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                {/* Price Tag Overlay */}
+                <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
+                  <span className="text-xs font-black text-[#2D4F1E] tracking-tight">
+                    ₹{form.price || "0"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <span className="text-[10px] font-black text-[#A3B899] uppercase tracking-widest block mb-1">
+                      New Arrival
+                    </span>
+                    <h4 className="font-serif text-2xl font-bold text-[#2D4F1E] leading-none tracking-tight break-words">
+                      {form.name || "Unnamed Blend"}
+                    </h4>
                   </div>
                 </div>
-             </div>
+
+                <div className="h-px w-full bg-[#E8DCC4]/30 my-4" />
+
+                <div className="flex justify-between items-center">
+                  <p className="text-[11px] text-[#4B3621]/60 font-medium line-clamp-2 max-w-[70%]">
+                    {form.description || "Tasting notes pending..."}
+                  </p>
+                  <button className="h-10 w-10 rounded-full bg-[#2D4F1E] flex items-center justify-center text-white shadow-lg shadow-[#2D4F1E]/20 hover:bg-[#1a3310] transition-colors">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <p className="mt-8 text-center text-[#4B3621]/30 text-[10px] uppercase tracking-wider font-medium">
+              This is how customers will see your product
+            </p>
           </div>
         </div>
       </div>

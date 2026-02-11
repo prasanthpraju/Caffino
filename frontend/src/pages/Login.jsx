@@ -14,24 +14,30 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      await login(email, password);
+  try {
+    const user = await login(email, password);
 
-      // ✅ everyone starts in shop mode
+    // 🔥 ROLE BASED REDIRECT
+    if (user.role === "admin") {
+      localStorage.setItem("viewMode", "admin");
+      navigate("/admin");   // ✅ go directly to admin dashboard
+    } else {
       localStorage.setItem("viewMode", "shop");
-
-      // 🔁 redirect back
-      navigate(redirectTo);
-    } catch (err) {
-      alert("Login failed");
-    } finally {
-      setLoading(false);
+      navigate(redirectTo); // normal user
     }
-  };
+
+  } catch (err) {
+    alert("Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   return (
     <form onSubmit={handleSubmit}>
@@ -46,9 +52,7 @@ const Login = () => {
         type="password"
         placeholder="password"
       />
-      <button disabled={loading}>
-        {loading ? "Logging in..." : "Login"}
-      </button>
+      <button disabled={loading}>{loading ? "Logging in..." : "Login"}</button>
     </form>
   );
 };
