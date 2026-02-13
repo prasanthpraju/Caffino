@@ -3,8 +3,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Shop from "./pages/Shop";
 
-
-
 import Navbar from "./components/Navbar";
 import AuthModal from "./components/AuthModal";
 import AdminRoute from "./components/AdminRoute";
@@ -20,9 +18,10 @@ import AdminProducts from "./pages/admin/AdminProducts";
 import AdminOrders from "./pages/admin/AdminOrders";
 import EditProduct from "./pages/admin/EditProduct";
 import ProductDetails from "./pages/ProductDetails";
-import Footer from "../src/components/Footer"
+import Footer from "../src/components/Footer";
 import About from "./components/about";
 import Contact from "./components/Contact";
+import AddBanner from "./pages/admin/AddBanner";
 
 function App() {
   return (
@@ -30,7 +29,6 @@ function App() {
       <BrowserRouter>
         <Navbar />
         <AuthModal />
-         
 
         <Routes>
           {/* USER ROUTES */}
@@ -40,10 +38,7 @@ function App() {
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-
-
-
+          <Route path="/contact" element={<Contact />} />
 
           {/* ADMIN ROUTES */}
           <Route
@@ -70,6 +65,11 @@ function App() {
               </AdminRoute>
             }
           />
+          <Route 
+          path="/admin/add-banner"
+          element={<AdminRoute>
+            <AddBanner/>
+          </AdminRoute>}/>
           <Route
             path="/admin/edit/:id"
             element={
@@ -87,12 +87,9 @@ function App() {
             }
           />
         </Routes>
-         <Footer />
-          
+        <Footer />
       </BrowserRouter>
-      
     </AuthProvider>
-    
   );
 }
 
